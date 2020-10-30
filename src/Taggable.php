@@ -18,6 +18,8 @@ use Illuminate\Database\Query\JoinClause;
  */
 trait Taggable
 {
+    private $taggableModel = null;
+    private $taggableTable = null;
     /**
      * Property to control sequence on alias
      *
@@ -25,6 +27,37 @@ trait Taggable
      */
     private $taggableAliasSequence = 0;
 
+    /**
+     * @param $taggableModel
+     * @return $this
+     */
+    public function setTaggableModel($model){
+        $this->taggableModel = $model;
+        return $this;
+    }
+
+    /**
+     * @return \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|mixed|null
+     */
+    public function getTaggableModel(){
+        return $this->taggableModel ?? config('taggable.model');
+    }
+
+    /**
+     * @param $tableName
+     * @return $this
+     */
+    public function setTaggableTable($tableName){
+        $this->taggableTable = $tableName;
+        return $this;
+    }
+
+    /**
+     * @return \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|mixed
+     */
+    public function getTaggableTable(){
+        return $this->taggableTable ?? config('taggable.tables.taggable_taggables', 'taggable_taggables');
+    }
     /**
      * Boot the trait.
      *
@@ -46,8 +79,8 @@ trait Taggable
      */
     public function tags(): MorphToMany
     {
-        $model = config('taggable.model');
-        $table = config('taggable.tables.taggable_taggables', 'taggable_taggables');
+        $model = $this->getTaggableModel();
+        $table = $this->getTaggableTable();
         return $this->morphToMany($model, 'taggable', $table, 'taggable_id', 'tag_id')
             ->withTimestamps();
     }
@@ -514,7 +547,7 @@ trait Taggable
      * Create a new alias to use on scopes to be able to combine many scopes
      *
      * @param string $scope
-     * 
+     *
      * @return string
      */
     private function taggableCreateNewAlias(string $scope): string

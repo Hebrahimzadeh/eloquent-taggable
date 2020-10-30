@@ -26,6 +26,11 @@ class TagService
         $this->tagModel = config('taggable.model', Tag::class);
     }
 
+    public function setModel($model){
+        $this->tagModel = $model;
+        return $this;
+    }
+
     /**
      * Find an existing tag by name.
      *
@@ -199,7 +204,7 @@ class TagService
         $pivotTable = $this->getQualifiedPivotTableName($class);
 
         $sql = "SELECT DISTINCT t.*
-              FROM {$pivotTable} tt 
+              FROM {$pivotTable} tt
               LEFT JOIN {$tagTable} t ON tt.tag_id=t.tag_id
               WHERE tt.taggable_type = ?";
 
@@ -266,8 +271,8 @@ class TagService
         $tagTable = $this->getQualifiedTagTableName();
         $pivotTable = $this->getQualifiedPivotTableName();
 
-        $sql = "SELECT t.*, COUNT(t.tag_id) AS taggable_count 
-            FROM {$tagTable} t 
+        $sql = "SELECT t.*, COUNT(t.tag_id) AS taggable_count
+            FROM {$tagTable} t
             LEFT JOIN {$pivotTable} tt ON tt.tag_id=t.tag_id";
         $bindings = [];
 
